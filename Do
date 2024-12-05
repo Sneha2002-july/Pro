@@ -1,0 +1,124 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+public class DoctorManagementUI {
+    private JFrame frame;
+    private JTextField nameField, contactField, medicalIdField;
+    private JComboBox<String> specializationDropdown;
+    private JTextField startTimeField, endTimeField;
+    private JTable doctorTable;
+    private DefaultTableModel tableModel;
+
+    public DoctorManagementUI() {
+        // Frame setup
+        frame = new JFrame("Doctor Management System");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
+
+        // Top Panel: Form
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Form Components
+        formPanel.add(new JLabel("Name:"));
+        nameField = new JTextField();
+        formPanel.add(nameField);
+
+        formPanel.add(new JLabel("Contact:"));
+        contactField = new JTextField();
+        formPanel.add(contactField);
+
+        formPanel.add(new JLabel("Medical ID:"));
+        medicalIdField = new JTextField();
+        formPanel.add(medicalIdField);
+
+        formPanel.add(new JLabel("Specialization:"));
+        specializationDropdown = new JComboBox<>(new String[]{"Cardiology", "Neurology", "Orthopedics"});
+        formPanel.add(specializationDropdown);
+
+        formPanel.add(new JLabel("Start Time:"));
+        startTimeField = new JTextField("08:00 AM");
+        formPanel.add(startTimeField);
+
+        formPanel.add(new JLabel("End Time:"));
+        endTimeField = new JTextField("04:00 PM");
+        formPanel.add(endTimeField);
+
+        // Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton saveButton = new JButton("Save");
+        JButton updateButton = new JButton("Update");
+        JButton cancelButton = new JButton("Cancel");
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(cancelButton);
+
+        // Bottom Panel: Doctor Table
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        String[] columnNames = {"Name", "Specialization", "Working Hours"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        doctorTable = new JTable(tableModel);
+
+        tablePanel.add(new JScrollPane(doctorTable), BorderLayout.CENTER);
+
+        // Add Panels to Frame
+        frame.add(formPanel, BorderLayout.NORTH);
+        frame.add(buttonPanel, BorderLayout.CENTER);
+        frame.add(tablePanel, BorderLayout.SOUTH);
+
+        // Action Listeners
+        saveButton.addActionListener(e -> saveDoctor());
+        updateButton.addActionListener(e -> updateDoctor());
+        cancelButton.addActionListener(e -> clearForm());
+
+        frame.setVisible(true);
+    }
+
+    private void saveDoctor() {
+        // Get form data
+        String name = nameField.getText();
+        String contact = contactField.getText();
+        String medicalId = medicalIdField.getText();
+        String specialization = specializationDropdown.getSelectedItem().toString();
+        String startTime = startTimeField.getText();
+        String endTime = endTimeField.getText();
+        String workingHours = startTime + " - " + endTime;
+
+        // Add to table
+        tableModel.addRow(new Object[]{name, specialization, workingHours});
+
+        // Clear form
+        clearForm();
+    }
+
+    private void updateDoctor() {
+        int selectedRow = doctorTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            // Update the selected row
+            tableModel.setValueAt(nameField.getText(), selectedRow, 0);
+            tableModel.setValueAt(specializationDropdown.getSelectedItem().toString(), selectedRow, 1);
+            tableModel.setValueAt(startTimeField.getText() + " - " + endTimeField.getText(), selectedRow, 2);
+
+            clearForm();
+        } else {
+            JOptionPane.showMessageDialog(frame, "No doctor selected for update!");
+        }
+    }
+
+    private void clearForm() {
+        nameField.setText("");
+        contactField.setText("");
+        medicalIdField.setText("");
+        specializationDropdown.setSelectedIndex(0);
+        startTimeField.setText("08:00 AM");
+        endTimeField.setText("04:00 PM");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(DoctorManagementUI::new);
+    }
+}
