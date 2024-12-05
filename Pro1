@@ -1,0 +1,174 @@
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class DoctorManagementUI {
+    private JFrame frame;
+    private JTextField nameField, contactField, medicalIdField;
+    private JComboBox<String> specializationDropdown;
+    private JTextField startTimeField, endTimeField;
+    private JTable doctorTable;
+    private DefaultTableModel tableModel;
+
+    public DoctorManagementUI() {
+        // Frame setup
+        frame = new JFrame("Doctor Management System");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(900, 700);
+        frame.setLayout(new BorderLayout());
+
+        // Header
+        JLabel headerLabel = new JLabel("Doctor Management System", JLabel.CENTER);
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        headerLabel.setOpaque(true);
+        headerLabel.setBackground(new Color(70, 130, 180)); // Steel Blue
+        headerLabel.setForeground(Color.WHITE);
+        headerLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Top Panel: Form
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel.setBorder(new TitledBorder(
+                new LineBorder(new Color(70, 130, 180), 2, true),
+                "Add or Update Doctor",
+                TitledBorder.LEADING,
+                TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 16),
+                new Color(70, 130, 180)
+        ));
+        formPanel.setBackground(new Color(240, 248, 255)); // Alice Blue
+
+        // Form Components
+        formPanel.add(new JLabel("Name:"));
+        nameField = new JTextField();
+        formPanel.add(nameField);
+
+        formPanel.add(new JLabel("Contact:"));
+        contactField = new JTextField();
+        formPanel.add(contactField);
+
+        formPanel.add(new JLabel("Medical ID:"));
+        medicalIdField = new JTextField();
+        formPanel.add(medicalIdField);
+
+        formPanel.add(new JLabel("Specialization:"));
+        specializationDropdown = new JComboBox<>(new String[]{"Cardiology", "Neurology", "Orthopedics"});
+        formPanel.add(specializationDropdown);
+
+        formPanel.add(new JLabel("Start Time:"));
+        startTimeField = new JTextField("08:00 AM");
+        formPanel.add(startTimeField);
+
+        formPanel.add(new JLabel("End Time:"));
+        endTimeField = new JTextField("04:00 PM");
+        formPanel.add(endTimeField);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setBackground(new Color(240, 248, 255)); // Alice Blue
+
+        JButton saveButton = new JButton("Save");
+        JButton updateButton = new JButton("Update");
+        JButton cancelButton = new JButton("Cancel");
+
+        // Style Buttons
+        styleButton(saveButton, new Color(50, 205, 50)); // Lime Green
+        styleButton(updateButton, new Color(255, 215, 0)); // Gold
+        styleButton(cancelButton, new Color(220, 20, 60)); // Crimson
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(cancelButton);
+
+        // Bottom Panel: Doctor Table
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setBorder(new TitledBorder(
+                new LineBorder(new Color(70, 130, 180), 2, true),
+                "Doctor List",
+                TitledBorder.LEADING,
+                TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 16),
+                new Color(70, 130, 180)
+        ));
+        tablePanel.setBackground(Color.WHITE);
+
+        String[] columnNames = {"Name", "Specialization", "Working Hours"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        doctorTable = new JTable(tableModel);
+
+        // Style Table
+        doctorTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        doctorTable.setRowHeight(25);
+        doctorTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        doctorTable.getTableHeader().setBackground(new Color(70, 130, 180));
+        doctorTable.getTableHeader().setForeground(Color.WHITE);
+
+        tablePanel.add(new JScrollPane(doctorTable), BorderLayout.CENTER);
+
+        // Add Components to Frame
+        frame.add(headerLabel, BorderLayout.NORTH);
+        frame.add(formPanel, BorderLayout.WEST);
+        frame.add(buttonPanel, BorderLayout.CENTER);
+        frame.add(tablePanel, BorderLayout.SOUTH);
+
+        // Action Listeners
+        saveButton.addActionListener(e -> saveDoctor());
+        updateButton.addActionListener(e -> updateDoctor());
+        cancelButton.addActionListener(e -> clearForm());
+
+        frame.setVisible(true);
+    }
+
+    private void styleButton(JButton button, Color color) {
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+    }
+
+    private void saveDoctor() {
+        // Get form data
+        String name = nameField.getText();
+        String contact = contactField.getText();
+        String medicalId = medicalIdField.getText();
+        String specialization = specializationDropdown.getSelectedItem().toString();
+        String startTime = startTimeField.getText();
+        String endTime = endTimeField.getText();
+        String workingHours = startTime + " - " + endTime;
+
+        // Add to table
+        tableModel.addRow(new Object[]{name, specialization, workingHours});
+
+        // Clear form
+        clearForm();
+    }
+
+    private void updateDoctor() {
+        int selectedRow = doctorTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            // Update the selected row
+            tableModel.setValueAt(nameField.getText(), selectedRow, 0);
+            tableModel.setValueAt(specializationDropdown.getSelectedItem().toString(), selectedRow, 1);
+            tableModel.setValueAt(startTimeField.getText() + " - " + endTimeField.getText(), selectedRow, 2);
+
+            clearForm();
+        } else {
+            JOptionPane.showMessageDialog(frame, "No doctor selected for update!");
+        }
+    }
+
+    private void clearForm() {
+        nameField.setText("");
+        contactField.setText("");
+        medicalIdField.setText("");
+        specializationDropdown.setSelectedIndex(0);
+        startTimeField.setText("08:00 AM");
+        endTimeField.setText("04:00 PM");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(DoctorManagementUI::new);
+    }
+}
